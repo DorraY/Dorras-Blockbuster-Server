@@ -18,8 +18,8 @@ connect.then((db) => {
   console.log("Connected correctly to database server")  
 }, (err) => { console.log(err)   })
 
-// let indexRouter = require('./routes/index')
-// let usersRouter = require('./routes/users')
+let indexRouter = require('./routes/index')
+let usersRouter = require('./routes/users')
 let movieRouter = require('./routes/movieRouter')
 let promoRouter = require('./routes/promoRouter')
 let leaderRouter = require('./routes/leaderRouter')
@@ -36,42 +36,24 @@ app.use(session({
   store: new FileStore()
 }))
 
-auth = (req, res, next) => {
+let auth = (req, res, next) => {
   console.log(req.session)
 
-  if (!req.signedCookies.user) {
-      let authHeader = req.headers.authorization 
-    if (!authHeader) {
-          let err = new Error('You are not authenticated!') 
-        res.setHeader('WWW-Authenticate', 'Basic')               
-        err.status = 401 
-        next(err) 
-        return 
-    }
-      let auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':') 
-      let user = auth[0] 
-      let pass = auth[1] 
-    if (user == 'admin' && pass == 'password') {
-        res.cookie('user','admin',{signed: true}) 
-        next()  // authorized
-    } else {
-          let err = new Error('You are not authenticated!') 
-        res.setHeader('WWW-Authenticate', 'Basic')               
-        err.status = 401 
-        next(err) 
-    }
+  if(!req.session.user) {
+    let err = new Error('You are not authenticated!')
+    err.status = 403
+    return next(err)
   }
   else {
-      if (req.signedCookies.user === 'admin') {
-        console.log('req.session: ',req.session)
-        next()
-      }
-      else {
-          let err = new Error('You are not authenticated!') 
-          err.status = 401 
-          next(err) 
-      }
+  if (req.session.user === 'authenticated') {
+    next()
   }
+  else {
+    var err = new Error('You are not authenticated!')
+    err.status = 403
+    return next(err)
+  }
+}
 }
 
 app.use(auth)  
@@ -90,8 +72,8 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
-// app.use('/', indexRouter)
-// app.use('/users', usersRouter)
+app.use('/', indexRouter)
+app.use('/users', usersRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
