@@ -12,8 +12,8 @@ let url = 'mongodb://localhost:27017/Blockbuster'
 let connect = mongoose.connect(url)
 
 connect.then((db) => {
-  console.log("Connected correctly to database server");
-}, (err) => { console.log(err); })
+  console.log("Connected correctly to database server")  
+}, (err) => { console.log(err)   })
 
 let indexRouter = require('./routes/index')
 let usersRouter = require('./routes/users')
@@ -22,6 +22,32 @@ let promoRouter = require('./routes/promoRouter')
 let leaderRouter = require('./routes/leaderRouter')
 
 let app = express()
+
+ auth = (req, res, next) => {
+  console.log(req.headers)  
+  let authHeader = req.headers.authorization  
+  if (!authHeader) {
+      let err = new Error('You are not authenticated!')  
+      res.setHeader('WWW-Authenticate', 'Basic')  
+      err.status = 401  
+      next(err)  
+      return  
+  }
+
+  let auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':')  
+  let user = auth[0]  
+  let pass = auth[1]  
+  if (user == 'admin' && pass == 'password') {
+      next()   // authorized
+  } else {
+    let err = new Error('You are not authenticated!')  
+      res.setHeader('WWW-Authenticate', 'Basic')        
+      err.status = 401  
+      next(err)  
+  }
+}
+
+app.use(auth)  
 
 app.use('/movies',movieRouter)
 app.use('/promotions',promoRouter)
