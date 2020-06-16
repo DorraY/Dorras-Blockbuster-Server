@@ -6,7 +6,7 @@ let logger = require('morgan')
 
 let mongoose = require('mongoose')
 
-let Movies = require('./models/movie')
+let Movies = require('./models/movies')
 
 let url = 'mongodb://localhost:27017/Blockbuster'
 let connect = mongoose.connect(url)

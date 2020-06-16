@@ -1,7 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
-const Movies = require('../models/movie') 
+const Movies = require('../models/movies') 
 
 const movieRouter = express.Router()
 
