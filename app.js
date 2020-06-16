@@ -11,6 +11,8 @@ let Movies = require('./models/movies')
 let url = 'mongodb://localhost:27017/Blockbuster'
 let connect = mongoose.connect(url,{useNewUrlParser: true, useUnifiedTopology: true})
 
+
+
 connect.then((db) => {
   console.log("Connected correctly to database server")  
 }, (err) => { console.log(err)   })
@@ -23,27 +25,40 @@ let leaderRouter = require('./routes/leaderRouter')
 
 let app = express()
 
- auth = (req, res, next) => {
-  console.log(req.headers)  
-  let authHeader = req.headers.authorization  
-  if (!authHeader) {
-      let err = new Error('You are not authenticated!')  
-      res.setHeader('WWW-Authenticate', 'Basic')  
-      err.status = 401  
-      next(err)  
-      return  
-  }
+app.use(cookieParser('12345-67890-09876-54321'))
 
-  let auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':')  
-  let user = auth[0]  
-  let pass = auth[1]  
-  if (user == 'admin' && pass == 'password') {
-      next()   // authorized
-  } else {
-    let err = new Error('You are not authenticated!')  
-      res.setHeader('WWW-Authenticate', 'Basic')        
-      err.status = 401  
-      next(err)  
+auth = (req, res, next) => {
+  if (!req.signedCookies.user) {
+      let authHeader = req.headers.authorization;
+    if (!authHeader) {
+          let err = new Error('You are not authenticated!');
+        res.setHeader('WWW-Authenticate', 'Basic');              
+        err.status = 401;
+        next(err);
+        return;
+    }
+      let auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+      let user = auth[0];
+      let pass = auth[1];
+    if (user == 'admin' && pass == 'password') {
+        res.cookie('user','admin',{signed: true});
+        next(); // authorized
+    } else {
+          let err = new Error('You are not authenticated!');
+        res.setHeader('WWW-Authenticate', 'Basic');              
+        err.status = 401;
+        next(err);
+    }
+  }
+  else {
+      if (req.signedCookies.user === 'admin') {
+          next();
+      }
+      else {
+          let err = new Error('You are not authenticated!');
+          err.status = 401;
+          next(err);
+      }
   }
 }
 
