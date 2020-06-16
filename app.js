@@ -11,7 +11,8 @@ let Movies = require('./models/movies')
 let url = 'mongodb://localhost:27017/Blockbuster'
 let connect = mongoose.connect(url,{useNewUrlParser: true, useUnifiedTopology: true})
 
-
+let session = require('express-session');
+let FileStore = require('session-file-store')(session);
 
 connect.then((db) => {
   console.log("Connected correctly to database server")  
@@ -27,7 +28,17 @@ let app = express()
 
 app.use(cookieParser('12345-67890-09876-54321'))
 
+app.use(session({
+  name: 'session-id',
+  secret: '12345-67890-09876-54321',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}))
+
 auth = (req, res, next) => {
+  console.log(req.session)
+
   if (!req.signedCookies.user) {
       let authHeader = req.headers.authorization 
     if (!authHeader) {
@@ -52,7 +63,8 @@ auth = (req, res, next) => {
   }
   else {
       if (req.signedCookies.user === 'admin') {
-          next() 
+        console.log('req.session: ',req.session)
+        next()
       }
       else {
           let err = new Error('You are not authenticated!') 
