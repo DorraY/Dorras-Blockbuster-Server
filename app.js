@@ -9,7 +9,7 @@ let mongoose = require('mongoose')
 let Movies = require('./models/movies')
 
 let url = 'mongodb://localhost:27017/Blockbuster'
-let connect = mongoose.connect(url)
+let connect = mongoose.connect(url,{useNewUrlParser: true, useUnifiedTopology: true})
 
 connect.then((db) => {
   console.log("Connected correctly to database server")  
