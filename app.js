@@ -17,8 +17,8 @@ connect.then((db) => {
   console.log("Connected correctly to database server")  
 }, (err) => { console.log(err)   })
 
-let indexRouter = require('./routes/index')
-let usersRouter = require('./routes/users')
+// let indexRouter = require('./routes/index')
+// let usersRouter = require('./routes/users')
 let movieRouter = require('./routes/movieRouter')
 let promoRouter = require('./routes/promoRouter')
 let leaderRouter = require('./routes/leaderRouter')
@@ -29,35 +29,35 @@ app.use(cookieParser('12345-67890-09876-54321'))
 
 auth = (req, res, next) => {
   if (!req.signedCookies.user) {
-      let authHeader = req.headers.authorization;
+      let authHeader = req.headers.authorization 
     if (!authHeader) {
-          let err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');              
-        err.status = 401;
-        next(err);
-        return;
+          let err = new Error('You are not authenticated!') 
+        res.setHeader('WWW-Authenticate', 'Basic')               
+        err.status = 401 
+        next(err) 
+        return 
     }
-      let auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-      let user = auth[0];
-      let pass = auth[1];
+      let auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':') 
+      let user = auth[0] 
+      let pass = auth[1] 
     if (user == 'admin' && pass == 'password') {
-        res.cookie('user','admin',{signed: true});
-        next(); // authorized
+        res.cookie('user','admin',{signed: true}) 
+        next()  // authorized
     } else {
-          let err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');              
-        err.status = 401;
-        next(err);
+          let err = new Error('You are not authenticated!') 
+        res.setHeader('WWW-Authenticate', 'Basic')               
+        err.status = 401 
+        next(err) 
     }
   }
   else {
       if (req.signedCookies.user === 'admin') {
-          next();
+          next() 
       }
       else {
-          let err = new Error('You are not authenticated!');
-          err.status = 401;
-          next(err);
+          let err = new Error('You are not authenticated!') 
+          err.status = 401 
+          next(err) 
       }
   }
 }
@@ -78,8 +78,8 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
-app.use('/', indexRouter)
-app.use('/users', usersRouter)
+// app.use('/', indexRouter)
+// app.use('/users', usersRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
